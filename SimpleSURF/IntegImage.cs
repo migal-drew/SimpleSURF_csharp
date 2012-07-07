@@ -50,6 +50,11 @@ namespace SimpleSURF
                 }
         }
 
+        /// <summary>
+        /// Creates double array of pixels brightness
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public static double[,] arrayFromBitmap(Bitmap b)
         {
             
@@ -98,6 +103,34 @@ namespace SimpleSURF
 
             return a + c - b - d; 
         }
+
+
+        /// <summary>
+        /// Horizontal Haar wavelet (X)
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="col"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        public double HaarWavelet_X(int row, int col, int size)
+        {
+            return this.getRectSum(row, col + size / 2, size / 2, size)
+                - this.getRectSum(row, col, size / 2, size);
+        }
+
+        /// <summary>
+        /// Vertical Haar wavelet (Y)
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="col"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        public double HaarWavelet_Y(int row, int col, int size)
+        {
+            return this.getRectSum(row + size / 2, col, size, size / 2)
+                - this.getRectSum(row, col, size, size / 2);
+        }
+
     }
 
     
