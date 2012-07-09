@@ -46,6 +46,7 @@ namespace SimpleSURF
                     if (i - 1 >= 0)
                         c = m_matrix[i - 1, j];
 
+                    //New value based on previous calculations
                     m_matrix[i, j] = val - a + b + c;
                 }
         }
