@@ -55,7 +55,7 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="IntegImage.cs" />
-    <Compile Include="Logic.cs" />
+    <Compile Include="OctaveLayer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="MainForm.resx">

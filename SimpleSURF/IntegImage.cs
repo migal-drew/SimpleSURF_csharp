@@ -77,7 +77,7 @@ namespace SimpleSURF
 
         /// <summary>
         /// Sum of rectangle. Left top point of rectangle,
-        /// it's width and height
+        /// its width and height
         /// </summary>
         /// <param name="col"></param>
         /// <param name="row"></param>
