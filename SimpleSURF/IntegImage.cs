@@ -24,7 +24,7 @@ namespace SimpleSURF
 
         public IntegImage(int width, int height)
         {
-            m_matrix = new double[width, height];
+            m_matrix = new double[height, width];
         }
 
         public IntegImage(double[,] ar)

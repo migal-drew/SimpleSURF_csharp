@@ -7,6 +7,7 @@ namespace SimpleSURF
 {
     public class OctaveLayer
     {
+        public static int filterMinSize = 9;
         //Octave which contains this layer
         public int octaveNum;
         //Length of the side of filter
@@ -20,7 +21,7 @@ namespace SimpleSURF
         public int height;
 
         public double[,] detHessians;
-        public int[,] laplacians;
+        public int[,] signs;
 
         /// <summary>
         /// Creates layer of octave
@@ -37,13 +38,42 @@ namespace SimpleSURF
             this.scale = (int)Math.Pow(2, octave);
             this.width = imgWidth / scale;
             this.height = imgHeight / scale;
+            this.detHessians = new double[this.height, this.width];
+            this.signs = new int[this.height, this.width];
         }
 
-        public void computeHessians(IntegImage img)
+        public void computeLayer(IntegImage img)
         {
-            for (int r = 0; r < height; r+=scale) {
-                for (int c = 0; c < width; c+=scale) {
-                    
+            //Values of Fast Hessian filters
+            double dxx, dyy, dxy;
+            //Useful values for faster computation of filters
+            int lobe = this.filterSize / 3;
+            int radius = (this.filterSize - 1) / 2;
+            //Length of the longer side of the lobe in dxx and dyy filters
+            //int longerSide = OctaveMap.MIN_LONGER_SIDE + OctaveMap.INCR_LONGER_SIDE * (
+                //(this.filterSize - OctaveMap.FILTER_MIN_SIZE) / OctaveMap.FILTER_INCR);
+            int longPart = 2 * lobe - 1;
+            int normalization = this.filterSize * this.filterSize;
+
+            int imgHeight = height * scale;
+            int imgWidth = width * scale;
+            int curRow = 0; 
+            int curCol = 0;
+            for (int r = radius; r < imgHeight; r += scale) {
+                for (int c = radius; c < imgWidth; c += scale) {
+
+                    dxx = img.getRectSum(r - lobe + 1, c - radius, filterSize, longPart)
+                        - 3 * img.getRectSum(r - lobe + 1, c - (lobe - 1) / 2, lobe, longPart);
+                    dyy = img.getRectSum(r - radius, c - lobe - 1, longPart, filterSize)
+                        - 3 * img.getRectSum(r - lobe + 1, c - lobe + 1, longPart, lobe);
+                    dxy = img.getRectSum(r - lobe, c - lobe, lobe, lobe)
+                        + img.getRectSum(r + 1, c + 1, lobe, lobe)
+                        - img.getRectSum(r - lobe, c + 1, lobe, lobe)
+                        - img.getRectSum(r + 1, c - lobe, lobe, lobe);
+
+                    this.detHessians[curRow, curCol] =
+                        dxx * dyy - 0.9 * 0.9 * dxy * dxy;
+                    this.signs[curRow, curCol] = (dxx + dyy >= 0) ? 1 : -1;
                 }
             }
         }
