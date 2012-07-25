@@ -7,7 +7,6 @@ namespace SimpleSURF
 {
     public class OctaveLayer
     {
-        public static int filterMinSize = 9;
         //Octave which contains this layer
         public int octaveNum;
         //Length of the side of filter
@@ -59,9 +58,10 @@ namespace SimpleSURF
             int imgWidth = width * scale;
             int curRow = 0; 
             int curCol = 0;
-            for (int r = radius; r < imgHeight; r += scale) {
-                for (int c = radius; c < imgWidth; c += scale) {
-
+            //Loop over image pixels
+            for (int r = radius; r <= imgHeight - radius; r++) {
+                for (int c = radius; c <= imgWidth - radius; c++) {
+                    
                     dxx = img.getRectSum(r - lobe + 1, c - radius, filterSize, longPart)
                         - 3 * img.getRectSum(r - lobe + 1, c - (lobe - 1) / 2, lobe, longPart);
                     dyy = img.getRectSum(r - radius, c - lobe - 1, longPart, filterSize)
@@ -71,6 +71,11 @@ namespace SimpleSURF
                         - img.getRectSum(r - lobe, c + 1, lobe, lobe)
                         - img.getRectSum(r + 1, c - lobe, lobe, lobe);
 
+                    dxx /= normalization;
+                    dyy /= normalization;
+                    dxy /= normalization;
+
+                    //Memorize Hessian filters values and their signs
                     this.detHessians[curRow, curCol] =
                         dxx * dyy - 0.9 * 0.9 * dxy * dxy;
                     this.signs[curRow, curCol] = (dxx + dyy >= 0) ? 1 : -1;
@@ -78,6 +83,6 @@ namespace SimpleSURF
             }
         }
 
-
+        //
     }
 }
