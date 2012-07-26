@@ -8,7 +8,9 @@ namespace SimpleSURF
 {
     public class IntegImage
     {
-        public double[,] m_matrix;
+        private double[,] m_matrix;
+        public int width;
+        public int height;
 
         public double this[int r, int c]
         {
@@ -25,12 +27,14 @@ namespace SimpleSURF
         public IntegImage(int width, int height)
         {
             m_matrix = new double[height, width];
+            this.width = width;
+            this.height = height;
         }
 
         public IntegImage(double[,] ar)
         {
-            int width = ar.GetLength(1);
-            int height = ar.GetLength(0);
+            this.width = ar.GetLength(1);
+            this.height = ar.GetLength(0);
             m_matrix = new double[height, width];
 
             for (int i = 0; i < height; i++)

@@ -11,6 +11,8 @@ namespace SimpleSURF
         public int octaveNum;
         //Length of the side of filter
         public int filterSize;
+        //Length of the border
+        public int radius;
         //Scale for this layer. Hessian is computed for points which are located
         //between each other on distance of <scale> pixels
         public int scale;
@@ -34,9 +36,10 @@ namespace SimpleSURF
         {
             this.octaveNum = octave;
             this.filterSize = 3 * ((int)Math.Pow(2, octave) * interval + 1);
+            this.radius = (this.filterSize - 1) / 2;
             this.scale = (int)Math.Pow(2, octave);
-            this.width = imgWidth / scale;
-            this.height = imgHeight / scale;
+            this.width = imgWidth;
+            this.height = imgHeight;
             this.detHessians = new double[this.height, this.width];
             this.signs = new int[this.height, this.width];
         }
@@ -47,17 +50,16 @@ namespace SimpleSURF
             double dxx, dyy, dxy;
             //Useful values for faster computation of filters
             int lobe = this.filterSize / 3;
-            int radius = (this.filterSize - 1) / 2;
+            
             //Length of the longer side of the lobe in dxx and dyy filters
-            //int longerSide = OctaveMap.MIN_LONGER_SIDE + OctaveMap.INCR_LONGER_SIDE * (
-                //(this.filterSize - OctaveMap.FILTER_MIN_SIZE) / OctaveMap.FILTER_INCR);
             int longPart = 2 * lobe - 1;
+
             int normalization = this.filterSize * this.filterSize;
 
-            int imgHeight = height * scale;
-            int imgWidth = width * scale;
-            int curRow = 0; 
-            int curCol = 0;
+            int imgHeight = height;// *scale;
+            int imgWidth = width;// *scale;
+            //int curRow = 0; 
+            //int curCol = 0;
             //Loop over image pixels
             for (int r = radius; r <= imgHeight - radius; r++) {
                 for (int c = radius; c <= imgWidth - radius; c++) {
@@ -75,10 +77,10 @@ namespace SimpleSURF
                     dyy /= normalization;
                     dxy /= normalization;
 
-                    //Memorize Hessian filters values and their signs
-                    this.detHessians[curRow, curCol] =
+                    //Memorize Hessian values and their signs
+                    this.detHessians[r, c] =
                         dxx * dyy - 0.9 * 0.9 * dxy * dxy;
-                    this.signs[curRow, curCol] = (dxx + dyy >= 0) ? 1 : -1;
+                    this.signs[r, c] = (dxx + dyy >= 0) ? 1 : -1;
                 }
             }
         }
