@@ -16,7 +16,6 @@ namespace SimpleSURF
         public int radius;
 
         public double[] descriptor;
-        
 
         public FeaturePoint()
         {
