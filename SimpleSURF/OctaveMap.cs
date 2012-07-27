@@ -10,22 +10,38 @@ namespace SimpleSURF
         public static int INTERVALS = 0x04;
 
         //Set of the octave layers
-        public OctaveLayer[] map;
+        public OctaveLayer[,] map;
 
         private IntegImage img;
 
-        public OctaveMap(int octaveNum, IntegImage img, int imgWidth, int imgHeight)
+        private int octaveStart;
+        private int octaveEnd;
+
+        /// <summary>
+        /// Octaves starts with one
+        /// </summary>
+        /// <param name="octaveStart"></param>
+        /// <param name="octaveEnd"></param>
+        /// <param name="img"></param>
+        /// <param name="imgWidth"></param>
+        /// <param name="imgHeight"></param>
+        public OctaveMap(int octaveStart, int octaveEnd, IntegImage img,
+            int imgWidth, int imgHeight)
         {
             this.img = img;
-            this.map = new OctaveLayer[INTERVALS];
-            for (int i = 0; i < INTERVALS; i++)
-                map[i] = new OctaveLayer(octaveNum, i + 1, imgWidth, imgHeight);
+            this.octaveStart = octaveStart;
+            this.octaveEnd = octaveEnd;
+            this.map = new OctaveLayer[octaveEnd, INTERVALS];
+            for (int oct = octaveStart; oct <= octaveEnd; oct++)
+                for (int i = 1; i <= INTERVALS; i++)
+                    map[oct - 1, i - 1] = new OctaveLayer(oct, i, imgWidth, imgHeight);
         }
 
         public void computeMap()
         {
-            for (int i = 0; i < INTERVALS; i++)
-                map[i].computeLayer(img);
+            for (int oct = octaveStart; oct <= octaveEnd; oct++)
+                for (int i = 0; i < INTERVALS; i++)
+                    map[oct - 1, i].computeLayer(img);
         }
 
         public bool pointIsExtremum(int row, int col,

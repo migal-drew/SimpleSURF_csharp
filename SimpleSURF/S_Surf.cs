@@ -23,23 +23,27 @@ namespace SimpleSURF
         {
             List<FeaturePoint> resPoints = new List<FeaturePoint>();
 
-            this.octMap = new OctaveMap(octaveStart, img, imgWidth, imgHeight);
+            this.octMap = new OctaveMap(
+                octaveStart, octaveEnd, img, imgWidth, imgHeight);
             this.octMap.computeMap();
 
-            for (int k = 0; k < OctaveMap.INTERVALS - 2; k++)
+            for (int oct = octaveStart; oct <= octaveEnd; oct++)
             {
-                OctaveLayer bot = octMap.map[k];
-                OctaveLayer mid = octMap.map[k + 1];
-                OctaveLayer top = octMap.map[k + 2];
+                for (int k = 0; k < OctaveMap.INTERVALS - 2; k++)
+                {
+                    OctaveLayer bot = octMap.map[oct - 1, k];
+                    OctaveLayer mid = octMap.map[oct - 1, k + 1];
+                    OctaveLayer top = octMap.map[oct - 1, k + 2];
 
-                for (int i = 0; i < mid.height; i++)
-                    for (int j = 0; j < mid.width; j++)
-                        if (octMap.pointIsExtremum(i, j, bot, mid, top, this.threshold))
-                        {
-                            octMap.pointIsExtremum(i, j, bot, mid, top, this.threshold);
-                            resPoints.Add(
-                                new FeaturePoint(j, i, mid.scale, mid.radius, mid.signs[i, j]));
-                        }
+                    for (int i = 0; i < mid.height; i++)
+                        for (int j = 0; j < mid.width; j++)
+                            if (octMap.pointIsExtremum(i, j, bot, mid, top, this.threshold))
+                            {
+                                octMap.pointIsExtremum(i, j, bot, mid, top, this.threshold);
+                                resPoints.Add(
+                                    new FeaturePoint(j, i, mid.scale, mid.radius, mid.signs[i, j]));
+                            }
+                }
             }
             return resPoints;
         }
