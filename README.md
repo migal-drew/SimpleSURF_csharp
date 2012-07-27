@@ -1,14 +1,15 @@
-|==========================================|
-|      Simple SURF (S-Surf)      	       |
-|==========================================|
+|===========================================|
+|      Simple SURF (S-Surf)      	        |
+|===========================================|
 This is a simplified version of            
 SURF algorithm(the same principles and
 calculations of Hessian filters).
-Changes:
+--------------------------------------------
 -Algorithm is sensitive to rotation and scale
 (max rotation angle is 15 degrees)
--It's possible to use custom range of scales
-(octaves)
+-Now uses only one custom octave
+(bottom octave) and 4 intervals
 -Hessian values are computed for each pixel
 (interpolation isn't implemented)
-============================================
+-For large images requires lots of time
+=============================================

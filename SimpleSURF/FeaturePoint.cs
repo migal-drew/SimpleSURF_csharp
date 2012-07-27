@@ -14,6 +14,7 @@ namespace SimpleSURF
         public int y;
         public int scale;
         public int radius;
+        public int sign;
 
         public double[] descriptor;
 
@@ -22,12 +23,13 @@ namespace SimpleSURF
             this.descriptor = new double[DESC_SIZE];
         }
 
-        public FeaturePoint(int x, int y, int scale, int radius)
+        public FeaturePoint(int x, int y, int scale, int radius, int sign)
         {
             this.x = x;
             this.y = y;
             this.scale = scale;
             this.radius = radius;
+            this.sign = sign;
             this.descriptor = new double[DESC_SIZE];
         }
             

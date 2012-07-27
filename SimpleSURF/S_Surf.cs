@@ -37,7 +37,8 @@ namespace SimpleSURF
                         if (octMap.pointIsExtremum(i, j, bot, mid, top, this.threshold))
                         {
                             octMap.pointIsExtremum(i, j, bot, mid, top, this.threshold);
-                            resPoints.Add(new FeaturePoint(j, i, mid.scale, mid.radius));
+                            resPoints.Add(
+                                new FeaturePoint(j, i, mid.scale, mid.radius, mid.signs[i, j]));
                         }
             }
             return resPoints;
