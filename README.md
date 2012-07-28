@@ -1,8 +1,8 @@
 Simple SURF (S-Surf)
 ====================
 This is a simplified version of
-SURF algorithm(based on the same
-principles)
+SURF algorithm(based on the same principles)
+
 ------
 * Algorithm is sensitive to rotation
 and scale(max rotation angle is 15 degrees)
