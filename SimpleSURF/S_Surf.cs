@@ -47,5 +47,64 @@ namespace SimpleSURF
             }
             return resPoints;
         }
+
+        public void setDescriptor(FeaturePoint p, IntegImage img, int imgWidth, int imgHeight)
+        {
+            //Affects to the descriptor area
+            const int haarScale = 20;
+            //Side of the Haar wavelet
+            int haarFilterSize = 2 * p.scale;
+            //Result
+            double[] desc = new double[FeaturePoint.DESC_SIZE];
+
+            //Length of the side of the descriptor area
+            int descSide = haarScale * p.scale;
+            //Side of the quadrant in 4x4 grid
+            int quadStep = descSide / 4;
+            //Side of the sub-quadrant in 5x5 regular grid of quadrant
+            int subQuadStep = quadStep / 5;
+
+            int leftTop_row = p.y - (descSide / 2);
+            int leftTop_col = p.x - (descSide / 2);
+
+            int count = 0;
+
+            for (int r = leftTop_row; r < leftTop_row + descSide; r += quadStep)
+                for (int c = leftTop_col; c < leftTop_col + descSide; c += quadStep)
+                {
+                    double dx = 0;
+                    double dy = 0;
+                    double abs_dx = 0;
+                    double abs_dy = 0;
+
+                    for (int sub_r = r; sub_r < r + quadStep; sub_r += subQuadStep)
+                        for (int sub_c = c; sub_c < c + quadStep; sub_c += subQuadStep)
+                        {
+                            //Approximate center of sub quadrant
+                            int cntr_r = sub_r + subQuadStep / 2;
+                            int cntr_c = sub_c + subQuadStep / 2;
+
+                            //Left top point for Haar wavelet computation
+                            int cur_r = cntr_r - haarFilterSize / 2;
+                            int cur_c = cntr_c - haarFilterSize / 2;
+
+                            //Gradients
+                            double cur_dx = img.HaarWavelet_X(cur_r, cur_c, haarFilterSize);
+                            double cur_dy = img.HaarWavelet_Y(cur_r, cur_c, haarFilterSize);
+
+                            dx += cur_dx;
+                            dy += cur_dy;
+                            abs_dx += Math.Abs(cur_dx);
+                            abs_dy += Math.Abs(cur_dy);
+                        }
+
+                    desc[count++] = dx;
+                    desc[count++] = dy;
+                    desc[count++] = abs_dx;
+                    desc[count++] = abs_dy;
+                }
+
+            p.descriptor = desc;
+        }
     }
 }

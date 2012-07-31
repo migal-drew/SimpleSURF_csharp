@@ -93,20 +93,43 @@ namespace SimpleSURF
             double a = 0, b = 0, c = 0, d = 0;
 
             //Left top point of rectangle is first
-            width -= 1;
-            height -=1;
+            int w = width - 1;
+            int h = height - 1;
 
-            if (row - 1 >= 0 && col - 1 >= 0) 
+            //Left top point
+            int lt_row = (row <= this.height) ? (row - 1) : -1;
+            int lt_col = (col <= this.width) ? (col - 1) : -1;
+            //Right bottom point of the rectangle
+            int rb_row = (row + h < this.height) ? (row + h) : (this.height - 1);
+            int rb_col = (col + w < this.width) ? (col + w) : (this.width - 1);
+
+            if (lt_row >= 0 && lt_col >= 0)
+                a = this[lt_row, lt_col];
+
+            if (lt_row >= 0 && rb_col >= 0)
+                b = this[lt_row, rb_col];
+
+            if (rb_row >= 0 && rb_col >= 0)
+                c = this[rb_row, rb_col];
+
+            if (rb_row >= 0 && lt_col >= 0)
+                d = this[rb_row, lt_col];
+
+            /*
+            if (row > 0 && col > 0) 
                 a = m_matrix[row - 1, col - 1];
-            if (row - 1 >= 0 && col + width < m_matrix.GetLength(1))
-                b = m_matrix[row - 1, col + width];
-            if (row + height < m_matrix.GetLength(0)
-                && col + width < m_matrix.GetLength(1) )
-                c = m_matrix[row + height, col + width];
-            if (row + height < m_matrix.GetLength(0) && col - 1 >= 0)
-                d = m_matrix[row + height, col - 1];
+            if (row > 0 && col + w < this.width)
+                b = m_matrix[row - 1, col + w];
+            if (row + h < this.height
+                && col + w < m_matrix.GetLength(1) )
+                c = m_matrix[row + h, col + w];
+            if (row + h < this.height && col > 0)
+                d = m_matrix[row + h, col - 1];
+            */
 
-            return a + c - b - d; 
+            double res = a + c - b - d;
+
+            return (res > 0) ? res : 0; 
         }
 
 

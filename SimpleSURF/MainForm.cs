@@ -109,6 +109,11 @@ namespace SimpleSURF
                     + pair.Value.ToString() + " points" + "\n";
 
             MessageBox.Show(m_stats);
+
+            foreach (FeaturePoint fp in m_points)
+                surf.setDescriptor(fp, m_integImg, m_integImg.width, m_integImg.height);
+
+            //int ololo = 0;
         }
 
         private void btnOpenImage_Click(object sender, EventArgs e)
