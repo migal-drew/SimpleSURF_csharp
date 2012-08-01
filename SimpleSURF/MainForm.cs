@@ -11,16 +11,22 @@ namespace SimpleSURF
 {
     public partial class MainForm : Form
     {
-        private Bitmap m_btmp;
-        private Bitmap m_resultBtmp;
-        private IntegImage m_integImg;
+        private Bitmap m_btmp_1;
+        private Bitmap m_btmp_2;
+
+        private Bitmap m_resultBtmp_1;
+        private Bitmap m_resultBtmp_2;
+
+        private IntegImage m_integImg_1;
+        private IntegImage m_integImg_2;
 
         private Color m_positiveClr;
         private Color m_negativeClr;
 
         private string m_stats;
 
-        List<FeaturePoint> m_points;
+        List<FeaturePoint> m_points_1;
+        List<FeaturePoint> m_points_2;
 
         public MainForm()
         {
@@ -44,26 +50,29 @@ namespace SimpleSURF
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            if (m_btmp == null)
+            if (m_btmp_1 == null && m_btmp_2 == null)
             {
-                MessageBox.Show("Open image first");
+                MessageBox.Show("Open images first");
                 return;
             }
 
-            m_resultBtmp = (Bitmap)m_btmp.Clone();
-            m_integImg = new IntegImage(IntegImage.arrayFromBitmap(m_btmp));
+            m_resultBtmp_1 = (Bitmap)m_btmp_1.Clone();
+            m_integImg_1 = new IntegImage(IntegImage.arrayFromBitmap(m_btmp_1));
+            m_resultBtmp_2 = (Bitmap)m_btmp_2.Clone();
+            m_integImg_2 = new IntegImage(IntegImage.arrayFromBitmap(m_btmp_2));
 
             double threshold = Double.Parse(this.txtBoxThreshold.Text);
             int botOctave = Int32.Parse(this.txtBoxBottomOct.Text);
             int topOctave = Int32.Parse(this.txtBoxTopOct.Text);
 
             S_Surf surf = new S_Surf(botOctave, topOctave, threshold);
-            m_points = surf.extractPoints(
-                m_integImg, m_integImg.width, m_integImg.height);
 
-            this.drawPoints(m_resultBtmp, m_points);
-            this.picBox.Image = m_resultBtmp;
-            this.picBox.Invalidate();
+            m_points_1 = surf.extractPoints(
+                m_integImg_1, m_integImg_1.width, m_integImg_1.height);
+            m_points_2 = surf.extractPoints(
+                m_integImg_2, m_integImg_2.width, m_integImg_2.height);
+
+
 
             /*
             double [,] ar = new double[,] {{1, 3, 4, 2, 5}, {7, 1, 2, 3, 4}, {2, 3, 5, 1, 2}};
@@ -75,14 +84,15 @@ namespace SimpleSURF
             ans = i.g
              */
 
-            this.Text = m_points.Count.ToString() 
+            this.Text = m_points_1.Count.ToString() + " + " + m_points_2.Count.ToString()
                 + " total feature points";
 
+            /*
             Dictionary<int, int> statistic = new Dictionary<int, int>();
 
-            for (int i = 0; i < m_points.Count; i++)
+            for (int i = 0; i < m_points_1.Count; i++)
             {
-                int specRad = m_points[i].radius;
+                int specRad = m_points_1[i].radius;
                 bool isMemorized = false;
                 foreach (KeyValuePair<int, int> pair in statistic)
                     if (pair.Key == (specRad * 2 + 1))
@@ -94,9 +104,9 @@ namespace SimpleSURF
                 if (!isMemorized)
                 {
                     int count = 0;
-                    for (int j = 0; j < m_points.Count; j++)
+                    for (int j = 0; j < m_points_1.Count; j++)
                     {
-                        if (m_points[j].radius == specRad)
+                        if (m_points_1[j].radius == specRad)
                             count++;
                     }
                     statistic.Add(specRad * 2 + 1, count);
@@ -109,11 +119,37 @@ namespace SimpleSURF
                     + pair.Value.ToString() + " points" + "\n";
 
             MessageBox.Show(m_stats);
+            */
 
-            foreach (FeaturePoint fp in m_points)
-                surf.setDescriptor(fp, m_integImg, m_integImg.width, m_integImg.height);
+            foreach (FeaturePoint fp in m_points_1)
+                surf.setDescriptor(fp, m_integImg_1, m_integImg_1.width, m_integImg_1.height);
+            foreach (FeaturePoint fp in m_points_2)
+                surf.setDescriptor(fp, m_integImg_2, m_integImg_2.width, m_integImg_2.height);
 
-            //int ololo = 0;
+            double matchTreshold = 100;
+
+            FeaturePoint[,] matches = surf.matchPoints(m_points_1.ToArray(), m_points_1.Count,
+                m_points_2.ToArray(), m_points_2.Count, matchTreshold);
+
+            m_points_1 = new List<FeaturePoint>();
+            m_points_2 = new List<FeaturePoint>();
+
+            for (int i = 0; i < matches.Length / 2; i++)
+            {
+                if (matches[i, 0] == null)
+                    break;
+
+                m_points_1.Add(matches[i, 0]);
+                m_points_2.Add(matches[i, 1]);
+            }
+
+            this.drawPoints(m_resultBtmp_1, m_points_1);
+            this.picBox_1.Image = m_resultBtmp_1;
+            this.picBox_1.Invalidate();
+
+            this.drawPoints(m_resultBtmp_2, m_points_2);
+            this.picBox_2.Image = m_resultBtmp_2;
+            this.picBox_2.Invalidate();
         }
 
         private void btnOpenImage_Click(object sender, EventArgs e)
@@ -125,8 +161,8 @@ namespace SimpleSURF
             if (pathToFile.Equals(""))
                 return;
 
-            m_btmp = new Bitmap(pathToFile);
-            this.picBox.Image = m_btmp;
+            m_btmp_1 = new Bitmap(pathToFile);
+            this.picBox_1.Image = m_btmp_1;
         }
 
         private void btnStats_Click(object sender, EventArgs e)
@@ -138,12 +174,12 @@ namespace SimpleSURF
         {
             this.clrDial.ShowDialog();
             m_positiveClr = clrDial.Color;
-            if (m_btmp != null)
+            if (m_btmp_1 != null)
             {
-                m_resultBtmp = (Bitmap)m_btmp.Clone();
-                this.drawPoints(m_resultBtmp, m_points);
-                this.picBox.Image = m_resultBtmp;
-                this.picBox.Invalidate();
+                m_resultBtmp_1 = (Bitmap)m_btmp_1.Clone();
+                this.drawPoints(m_resultBtmp_1, m_points_1);
+                this.picBox_1.Image = m_resultBtmp_1;
+                this.picBox_1.Invalidate();
             }
         }
 
@@ -151,13 +187,26 @@ namespace SimpleSURF
         {
             this.clrDial.ShowDialog();
             m_negativeClr = clrDial.Color;
-            if (m_btmp != null)
+            if (m_btmp_1 != null)
             {
-                m_resultBtmp = (Bitmap)m_btmp.Clone();
-                this.drawPoints(m_resultBtmp, m_points);
-                this.picBox.Image = m_resultBtmp;
-                this.picBox.Invalidate();
+                m_resultBtmp_1 = (Bitmap)m_btmp_1.Clone();
+                this.drawPoints(m_resultBtmp_1, m_points_1);
+                this.picBox_1.Image = m_resultBtmp_1;
+                this.picBox_1.Invalidate();
             }
+        }
+
+        private void btnOpenImage_2_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.ShowDialog();
+            string pathToFile = openFileDialog.FileName;
+
+            if (pathToFile.Equals(""))
+                return;
+
+            m_btmp_2 = new Bitmap(pathToFile);
+            this.picBox_2.Image = m_btmp_2;
         }
     }
 }

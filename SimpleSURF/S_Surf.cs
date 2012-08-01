@@ -106,5 +106,36 @@ namespace SimpleSURF
 
             p.descriptor = desc;
         }
+
+        public FeaturePoint[,] matchPoints(FeaturePoint[] p_1, int len_1,
+            FeaturePoint[] p_2, int len_2, double threshold)
+        {
+            //int minLength = (len_1 < len_2) ? len_1 : len_2;
+            FeaturePoint[,] res = new FeaturePoint[len_1, 2];
+            int count = 0;
+
+            for (int i = 0; i < len_1; i++)
+                for (int j = 0; j < len_2; j++)
+                    if (p_1[i].sign == p_2[j].sign)
+                    {
+                        double dist = 0;
+
+                        for (int k = 0; k < FeaturePoint.DESC_SIZE; k++)
+                            dist += (p_1[i].descriptor[k] - p_2[j].descriptor[k])
+                                * (p_1[i].descriptor[k] - p_2[j].descriptor[k]);
+
+                        dist = Math.Sqrt(dist);
+                        if (dist < threshold)
+                        {
+                            res[count, 0] = p_1[i];
+                            res[count, 1] = p_2[j];
+                            count++;
+
+                            break;
+                        }
+                    }
+
+            return res;
+        }
     }
 }
