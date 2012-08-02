@@ -19,6 +19,15 @@ namespace SimpleSURF
             this.octaveEnd = octaveEnd;
         }
 
+        private double getEuclideanDistance(double[] desc_1, double[] desc_2, int length)
+        {
+            double sum = 0;
+            for (int i = 0; i < length; i++)
+                sum += (desc_1[i] - desc_2[i]) * (desc_1[i] - desc_2[i]);
+
+            return Math.Sqrt(sum);
+        }
+
         public List<FeaturePoint> extractPoints(IntegImage img, int imgWidth, int imgHeight)
         {
             List<FeaturePoint> resPoints = new List<FeaturePoint>();
@@ -50,6 +59,7 @@ namespace SimpleSURF
 
         public void setDescriptor(FeaturePoint p, IntegImage img, int imgWidth, int imgHeight)
         {
+#warning Set descriptor to point directly
             //Affects to the descriptor area
             const int haarScale = 20;
             //Side of the Haar wavelet
@@ -110,32 +120,50 @@ namespace SimpleSURF
         public FeaturePoint[,] matchPoints(FeaturePoint[] p_1, int len_1,
             FeaturePoint[] p_2, int len_2, double threshold)
         {
-            //int minLength = (len_1 < len_2) ? len_1 : len_2;
-            FeaturePoint[,] res = new FeaturePoint[len_1, 2];
-            int count = 0;
+            FeaturePoint[,] result = new FeaturePoint[len_1, 2];
+
+            bool[] alreadyMatched = new bool[len_2];
+            for (int i = 0; i < len_2; i++)
+                alreadyMatched[i] = false;
+
+            int countMatched = 0;
 
             for (int i = 0; i < len_1; i++)
+            {
+                double bestDist = -1;
+                int bestIndex = -1;
+
+                //Find the nearest point
                 for (int j = 0; j < len_2; j++)
-                    if (p_1[i].sign == p_2[j].sign)
-                    {
-                        double dist = 0;
-
-                        for (int k = 0; k < FeaturePoint.DESC_SIZE; k++)
-                            dist += (p_1[i].descriptor[k] - p_2[j].descriptor[k])
-                                * (p_1[i].descriptor[k] - p_2[j].descriptor[k]);
-
-                        dist = Math.Sqrt(dist);
-                        if (dist < threshold)
+                    if (!alreadyMatched[j])
+                        if (p_1[i].sign == p_2[j].sign)
                         {
-                            res[count, 0] = p_1[i];
-                            res[count, 1] = p_2[j];
-                            count++;
+                            double curDist = getEuclideanDistance(p_1[i].descriptor, p_2[j].descriptor,
+                                FeaturePoint.DESC_SIZE);
 
-                            break;
+                            if (j == 0)
+                            {
+                                bestDist = curDist;
+                                bestIndex = j;
+                            }
+                            else
+                                if (curDist < bestDist)
+                                {
+                                    bestDist = curDist;
+                                    bestIndex = j;
+                                }
                         }
-                    }
 
-            return res;
+                if (bestDist >= 0 && bestDist <= threshold)
+                {
+                    result[countMatched, 0] = p_1[i];
+                    result[countMatched, 1] = p_2[bestIndex];
+                    countMatched++;
+                    alreadyMatched[bestIndex] = true;
+                }
+            }
+
+            return result;
         }
     }
 }

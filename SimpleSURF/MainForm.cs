@@ -25,8 +25,15 @@ namespace SimpleSURF
 
         private string m_stats;
 
+        S_Surf m_surf;
+
         List<FeaturePoint> m_points_1;
         List<FeaturePoint> m_points_2;
+
+        List<FeaturePoint> m_matchedPoints_1;
+        List<FeaturePoint> m_matchedPoints_2;
+
+        //List<FeaturePoint> m_points_1;
 
         public MainForm()
         {
@@ -34,6 +41,34 @@ namespace SimpleSURF
 
             m_positiveClr = Color.Yellow;
             m_negativeClr = Color.Blue;
+        }
+
+        private void convertToLuminosity(Bitmap b)
+        {
+            const double forRed = 0.21;
+            const double forGreen = 0.72;
+            const double forBlue = 0.07;
+
+            for (int i = 0; i < b.Height; i++)
+                for (int j = 0; j < b.Width; j++)
+                {
+                    Color c = b.GetPixel(j, i);
+                    int lum = (int)(forRed * c.R + forGreen * c.G + forBlue * c.B);
+                    Color newColor = Color.FromArgb(lum, lum, lum);
+
+                    b.SetPixel(j, i, newColor);
+                }
+            
+            /*
+            for (int i = 0; i < b.Height; i++)
+                for (int j = 0; j < b.Width; j++)
+                {
+                    Color c = b.GetPixel(j, i);
+                    int value = (c.B + c.R + c.B) / 3;
+
+                    b.SetPixel(j, i, Color.FromArgb(value, value, value));
+                }
+             * */
         }
 
         private void drawPoints(Bitmap btmp, List<FeaturePoint> points)
@@ -56,6 +91,8 @@ namespace SimpleSURF
                 return;
             }
 
+
+
             m_resultBtmp_1 = (Bitmap)m_btmp_1.Clone();
             m_integImg_1 = new IntegImage(IntegImage.arrayFromBitmap(m_btmp_1));
             m_resultBtmp_2 = (Bitmap)m_btmp_2.Clone();
@@ -65,11 +102,11 @@ namespace SimpleSURF
             int botOctave = Int32.Parse(this.txtBoxBottomOct.Text);
             int topOctave = Int32.Parse(this.txtBoxTopOct.Text);
 
-            S_Surf surf = new S_Surf(botOctave, topOctave, threshold);
+            m_surf = new S_Surf(botOctave, topOctave, threshold);
 
-            m_points_1 = surf.extractPoints(
+            m_points_1 = m_surf.extractPoints(
                 m_integImg_1, m_integImg_1.width, m_integImg_1.height);
-            m_points_2 = surf.extractPoints(
+            m_points_2 = m_surf.extractPoints(
                 m_integImg_2, m_integImg_2.width, m_integImg_2.height);
 
 
@@ -122,31 +159,16 @@ namespace SimpleSURF
             */
 
             foreach (FeaturePoint fp in m_points_1)
-                surf.setDescriptor(fp, m_integImg_1, m_integImg_1.width, m_integImg_1.height);
+                m_surf.setDescriptor(fp, m_integImg_1, m_integImg_1.width, m_integImg_1.height);
             foreach (FeaturePoint fp in m_points_2)
-                surf.setDescriptor(fp, m_integImg_2, m_integImg_2.width, m_integImg_2.height);
+                m_surf.setDescriptor(fp, m_integImg_2, m_integImg_2.width, m_integImg_2.height);
 
-            double matchTreshold = 100;
-
-            FeaturePoint[,] matches = surf.matchPoints(m_points_1.ToArray(), m_points_1.Count,
-                m_points_2.ToArray(), m_points_2.Count, matchTreshold);
-
-            m_points_1 = new List<FeaturePoint>();
-            m_points_2 = new List<FeaturePoint>();
-
-            for (int i = 0; i < matches.Length / 2; i++)
-            {
-                if (matches[i, 0] == null)
-                    break;
-
-                m_points_1.Add(matches[i, 0]);
-                m_points_2.Add(matches[i, 1]);
-            }
-
+            m_resultBtmp_1 = (Bitmap)m_btmp_1.Clone();
             this.drawPoints(m_resultBtmp_1, m_points_1);
             this.picBox_1.Image = m_resultBtmp_1;
             this.picBox_1.Invalidate();
 
+            m_resultBtmp_2 = (Bitmap)m_btmp_2.Clone();
             this.drawPoints(m_resultBtmp_2, m_points_2);
             this.picBox_2.Image = m_resultBtmp_2;
             this.picBox_2.Invalidate();
@@ -162,6 +184,7 @@ namespace SimpleSURF
                 return;
 
             m_btmp_1 = new Bitmap(pathToFile);
+            convertToLuminosity(m_btmp_1);
             this.picBox_1.Image = m_btmp_1;
         }
 
@@ -180,6 +203,11 @@ namespace SimpleSURF
                 this.drawPoints(m_resultBtmp_1, m_points_1);
                 this.picBox_1.Image = m_resultBtmp_1;
                 this.picBox_1.Invalidate();
+
+                m_resultBtmp_2 = (Bitmap)m_btmp_2.Clone();
+                this.drawPoints(m_resultBtmp_2, m_points_2);
+                this.picBox_2.Image = m_resultBtmp_2;
+                this.picBox_2.Invalidate();
             }
         }
 
@@ -193,6 +221,11 @@ namespace SimpleSURF
                 this.drawPoints(m_resultBtmp_1, m_points_1);
                 this.picBox_1.Image = m_resultBtmp_1;
                 this.picBox_1.Invalidate();
+
+                m_resultBtmp_2 = (Bitmap)m_btmp_2.Clone();
+                this.drawPoints(m_resultBtmp_2, m_points_2);
+                this.picBox_2.Image = m_resultBtmp_2;
+                this.picBox_2.Invalidate();
             }
         }
 
@@ -206,7 +239,41 @@ namespace SimpleSURF
                 return;
 
             m_btmp_2 = new Bitmap(pathToFile);
+            convertToLuminosity(m_btmp_2);
             this.picBox_2.Image = m_btmp_2;
+        }
+
+        private void btnMatch_Click(object sender, EventArgs e)
+        {
+            if (m_points_1 != null && m_points_2 != null)
+            {
+                double matchTreshold = Double.Parse(this.txtBoxMatch.Text.ToString());
+
+                FeaturePoint[,] matches = m_surf.matchPoints(m_points_1.ToArray(), m_points_1.Count,
+                    m_points_2.ToArray(), m_points_2.Count, matchTreshold);
+
+                m_matchedPoints_1 = new List<FeaturePoint>();
+                m_matchedPoints_2 = new List<FeaturePoint>();
+
+                for (int i = 0; i < matches.Length / 2; i++)
+                {
+                    if (matches[i, 0] == null)
+                        break;
+
+                    m_matchedPoints_1.Add(matches[i, 0]);
+                    m_matchedPoints_2.Add(matches[i, 1]);
+                }
+
+                m_resultBtmp_1 = (Bitmap)m_btmp_1.Clone();
+                this.drawPoints(m_resultBtmp_1, m_matchedPoints_1);
+                this.picBox_1.Image = m_resultBtmp_1;
+                this.picBox_1.Invalidate();
+
+                m_resultBtmp_2 = (Bitmap)m_btmp_2.Clone();
+                this.drawPoints(m_resultBtmp_2, m_matchedPoints_2);
+                this.picBox_2.Image = m_resultBtmp_2;
+                this.picBox_2.Invalidate();
+            }
         }
     }
 }

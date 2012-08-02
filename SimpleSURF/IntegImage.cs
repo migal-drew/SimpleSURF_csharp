@@ -62,7 +62,6 @@ namespace SimpleSURF
         /// <returns></returns>
         public static double[,] arrayFromBitmap(Bitmap b)
         {
-            
             int width = b.Width;
             int height = b.Height;
             double[,] pixels = new double[height, width];
