@@ -204,7 +204,7 @@
             this.txtBoxMatch.Name = "txtBoxMatch";
             this.txtBoxMatch.Size = new System.Drawing.Size(81, 20);
             this.txtBoxMatch.TabIndex = 14;
-            this.txtBoxMatch.Text = "100";
+            this.txtBoxMatch.Text = "0,002";
             // 
             // label4
             // 

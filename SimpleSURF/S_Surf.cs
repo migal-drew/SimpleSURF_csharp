@@ -7,6 +7,13 @@ namespace SimpleSURF
 {
     public class S_Surf
     {
+        private struct MatchInfo
+        {
+            public int ind_1;
+            public int ind_2;
+            public double euclideanDist;
+        }
+
         private double threshold;
         private int octaveStart;
         private int octaveEnd;
@@ -116,11 +123,53 @@ namespace SimpleSURF
             p.descriptor = desc;
         }
 
+        private void normalizeDist(MatchInfo[] ar, int length)
+        {
+            double max = 0;
+            double min = 0;
+            //Find max and min values
+            for (int i = 0; i < length; i++)
+            {
+                if (i == 0)
+                {
+                    max = min = ar[i].euclideanDist;
+                }
+                else
+                {
+                    if (ar[i].euclideanDist < min)
+                        min = ar[i].euclideanDist;
+                    if (ar[i].euclideanDist > max)
+                        max = ar[i].euclideanDist;
+                }
+            }
+
+            double div = max - min;
+
+            for (int i = 0; i < length; i++)
+                if (div != 0)
+                    ar[i].euclideanDist = (ar[i].euclideanDist - min) / div;
+                else
+                    ar[i].euclideanDist = 0;
+        }
+
         public FeaturePoint[,] matchPoints(FeaturePoint[] p_1, int len_1,
             FeaturePoint[] p_2, int len_2, double threshold)
         {
-            FeaturePoint[,] result = new FeaturePoint[len_1, 2];
+            int minLength = (len_1 < len_2) ? len_1 : len_2;
 
+            //Matched points
+            FeaturePoint[,] result = new FeaturePoint[minLength, 2];
+
+            /* 
+             * Stores matched points and their
+             * normalized euclidean distances  ( [0..1] )
+             * 1st point | 2nd point | distance
+             */
+            MatchInfo[] distMap = new MatchInfo[minLength];
+
+            /*
+             * Flag that points are matched
+             */
             bool[] alreadyMatched = new bool[len_2];
             for (int i = 0; i < len_2; i++)
                 alreadyMatched[i] = false;
@@ -153,14 +202,26 @@ namespace SimpleSURF
                                 }
                         }
 
-                if (bestDist >= 0 && bestDist <= threshold)
+                if (bestDist >= 0)
                 {
-                    result[countMatched, 0] = p_1[i];
-                    result[countMatched, 1] = p_2[bestIndex];
+                    distMap[countMatched].ind_1 = i;
+                    distMap[countMatched].ind_2 = bestIndex;
+                    distMap[countMatched].euclideanDist = bestDist;
                     countMatched++;
                     alreadyMatched[bestIndex] = true;
                 }
             }
+
+            normalizeDist(distMap, minLength);
+
+            int c = 0;
+            for (int i = 0; i < minLength; i++)
+                if (distMap[i].euclideanDist <= threshold)
+                {
+                    result[c, 0] = p_1[distMap[i].ind_1];
+                    result[c, 1] = p_2[distMap[i].ind_2];
+                    c++;
+                }
 
             return result;
         }
