@@ -59,7 +59,6 @@ namespace SimpleSURF
 
         public void setDescriptor(FeaturePoint p, IntegImage img, int imgWidth, int imgHeight)
         {
-#warning Set descriptor to point directly
             //Affects to the descriptor area
             const int haarScale = 20;
             //Side of the Haar wavelet
@@ -141,7 +140,7 @@ namespace SimpleSURF
                             double curDist = getEuclideanDistance(p_1[i].descriptor, p_2[j].descriptor,
                                 FeaturePoint.DESC_SIZE);
 
-                            if (j == 0)
+                            if (bestDist == -1)
                             {
                                 bestDist = curDist;
                                 bestIndex = j;
