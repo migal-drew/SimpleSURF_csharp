@@ -46,6 +46,7 @@
             this.txtBoxMatch = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.btnMatch = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.picBox_1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picBox_2)).BeginInit();
             this.SuspendLayout();
@@ -53,7 +54,7 @@
             // btnStart
             // 
             this.btnStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnStart.Location = new System.Drawing.Point(982, 455);
+            this.btnStart.Location = new System.Drawing.Point(982, 406);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(84, 23);
             this.btnStart.TabIndex = 0;
@@ -132,7 +133,7 @@
             // 
             // btnOpenImage_1
             // 
-            this.btnOpenImage_1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOpenImage_1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnOpenImage_1.Location = new System.Drawing.Point(257, 658);
             this.btnOpenImage_1.Name = "btnOpenImage_1";
             this.btnOpenImage_1.Size = new System.Drawing.Size(75, 23);
@@ -154,8 +155,8 @@
             // 
             // btnPosColor
             // 
-            this.btnPosColor.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.btnPosColor.Location = new System.Drawing.Point(970, 331);
+            this.btnPosColor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnPosColor.Location = new System.Drawing.Point(970, 317);
             this.btnPosColor.Name = "btnPosColor";
             this.btnPosColor.Size = new System.Drawing.Size(98, 23);
             this.btnPosColor.TabIndex = 10;
@@ -165,8 +166,8 @@
             // 
             // button1
             // 
-            this.button1.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.button1.Location = new System.Drawing.Point(970, 360);
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(970, 346);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(98, 23);
             this.button1.TabIndex = 11;
@@ -188,7 +189,7 @@
             // 
             // btnOpenImage_2
             // 
-            this.btnOpenImage_2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOpenImage_2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnOpenImage_2.Location = new System.Drawing.Point(707, 658);
             this.btnOpenImage_2.Name = "btnOpenImage_2";
             this.btnOpenImage_2.Size = new System.Drawing.Size(75, 23);
@@ -219,7 +220,7 @@
             // btnMatch
             // 
             this.btnMatch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnMatch.Location = new System.Drawing.Point(982, 519);
+            this.btnMatch.Location = new System.Drawing.Point(982, 447);
             this.btnMatch.Name = "btnMatch";
             this.btnMatch.Size = new System.Drawing.Size(84, 23);
             this.btnMatch.TabIndex = 16;
@@ -227,11 +228,23 @@
             this.btnMatch.UseVisualStyleBackColor = true;
             this.btnMatch.Click += new System.EventHandler(this.btnMatch_Click);
             // 
+            // button2
+            // 
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button2.Location = new System.Drawing.Point(982, 486);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(84, 23);
+            this.button2.TabIndex = 17;
+            this.button2.Text = "Preview";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1078, 693);
+            this.Controls.Add(this.button2);
             this.Controls.Add(this.btnMatch);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.txtBoxMatch);
@@ -278,6 +291,7 @@
         private System.Windows.Forms.TextBox txtBoxMatch;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button btnMatch;
+        private System.Windows.Forms.Button button2;
     }
 }
 

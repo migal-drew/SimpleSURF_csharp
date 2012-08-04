@@ -275,5 +275,37 @@ namespace SimpleSURF
                 this.picBox_2.Invalidate();
             }
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Bitmap prevBtmp = new Bitmap(m_btmp_1.Width + m_btmp_2.Width,
+                m_btmp_1.Height);
+
+            Graphics g = Graphics.FromImage(prevBtmp);
+            g.DrawImage(m_btmp_1, 0, 0, m_btmp_1.Width, m_btmp_1.Height);
+            g.DrawImage(m_btmp_2, m_btmp_1.Width, 0, m_btmp_2.Width, m_btmp_2.Height);
+
+            Pen p = new Pen(new SolidBrush(Color.Yellow), 2);
+
+            for (int i = 0; i < m_matchedPoints_1.Count; i++)
+            {
+                g.DrawLine(p, 
+                    m_matchedPoints_1[i].x, m_matchedPoints_1[i].y,
+                    m_matchedPoints_2[i].x + m_btmp_1.Width,
+                    m_matchedPoints_2[i].y);
+
+                g.DrawEllipse(p, m_matchedPoints_1[i].x, m_matchedPoints_1[i].y,
+                    2, 2);
+                g.DrawEllipse(p,
+                    m_matchedPoints_2[i].x + m_btmp_1.Width,
+                    m_matchedPoints_2[i].y,
+                    2, 2);
+            }
+
+            PreviewForm pf = new PreviewForm();
+            pf.Image = prevBtmp;
+
+            pf.Show();
+        }
     }
 }
