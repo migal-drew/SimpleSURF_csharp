@@ -7,11 +7,18 @@ namespace SimpleSURF
 {
     public class S_Surf
     {
-        private struct MatchInfo
+        private class MatchInfo
         {
             public int ind_1;
             public int ind_2;
             public double euclideanDist;
+
+            public MatchInfo()
+            {
+                this.ind_1 = -1;
+                this.ind_2 = -1;
+                this.euclideanDist = -1.0;
+            }
         }
 
         private double threshold;
@@ -130,16 +137,19 @@ namespace SimpleSURF
             //Find max and min values
             for (int i = 0; i < length; i++)
             {
-                if (i == 0)
+                if (ar[i].euclideanDist >= 0)
                 {
-                    max = min = ar[i].euclideanDist;
-                }
-                else
-                {
-                    if (ar[i].euclideanDist < min)
-                        min = ar[i].euclideanDist;
-                    if (ar[i].euclideanDist > max)
-                        max = ar[i].euclideanDist;
+                    if (i == 0)
+                    {
+                        max = min = ar[i].euclideanDist;
+                    }
+                    else
+                    {
+                        if (ar[i].euclideanDist < min)
+                            min = ar[i].euclideanDist;
+                        if (ar[i].euclideanDist > max)
+                            max = ar[i].euclideanDist;
+                    }
                 }
             }
 
@@ -166,6 +176,8 @@ namespace SimpleSURF
              * 1st point | 2nd point | distance
              */
             MatchInfo[] distMap = new MatchInfo[minLength];
+            for (int i = 0; i < minLength; i++)
+                distMap[i] = new MatchInfo();
 
             /*
              * Flag that points are matched
@@ -216,7 +228,8 @@ namespace SimpleSURF
 
             int c = 0;
             for (int i = 0; i < minLength; i++)
-                if (distMap[i].euclideanDist <= threshold)
+                if (distMap[i].euclideanDist >= 0
+                    && distMap[i].euclideanDist <= threshold)
                 {
                     result[c, 0] = p_1[distMap[i].ind_1];
                     result[c, 1] = p_2[distMap[i].ind_2];
