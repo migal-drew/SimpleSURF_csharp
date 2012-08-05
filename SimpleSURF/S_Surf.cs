@@ -133,7 +133,8 @@ namespace SimpleSURF
         private void normalizeDist(MatchInfo[] ar, int length)
         {
             double max = 0;
-            double min = 0;
+            //double min = 0;
+
             //Find max and min values
             for (int i = 0; i < length; i++)
             {
@@ -141,23 +142,23 @@ namespace SimpleSURF
                 {
                     if (i == 0)
                     {
-                        max = min = ar[i].euclideanDist;
+                        max = ar[i].euclideanDist;
                     }
                     else
                     {
-                        if (ar[i].euclideanDist < min)
-                            min = ar[i].euclideanDist;
+                        //if (ar[i].euclideanDist < min)
+                        //    min = ar[i].euclideanDist;
                         if (ar[i].euclideanDist > max)
                             max = ar[i].euclideanDist;
                     }
                 }
             }
 
-            double div = max - min;
+            //double div = max;
 
             for (int i = 0; i < length; i++)
-                if (div != 0)
-                    ar[i].euclideanDist = (ar[i].euclideanDist - min) / div;
+                if (max != 0)
+                    ar[i].euclideanDist = ar[i].euclideanDist / max;
                 else
                     ar[i].euclideanDist = 0;
         }
