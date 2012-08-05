@@ -135,7 +135,7 @@ namespace SimpleSURF
             double max = 0;
             //double min = 0;
 
-            //Find max and min values
+            //Find max value
             for (int i = 0; i < length; i++)
             {
                 if (ar[i].euclideanDist >= 0)
@@ -166,6 +166,8 @@ namespace SimpleSURF
         public FeaturePoint[,] matchPoints(FeaturePoint[] p_1, int len_1,
             FeaturePoint[] p_2, int len_2, double threshold)
         {
+            const double ratioThreshold = 0.8;
+
             int minLength = (len_1 < len_2) ? len_1 : len_2;
 
             //Matched points
@@ -214,15 +216,38 @@ namespace SimpleSURF
                                     bestIndex = j;
                                 }
                         }
+                //-----------------------------------------------------------------------
+                /*
+                 * Findes the 2nd nearest point. 
+                 */
+                double bestDist_2 = -1;
 
-                if (bestDist >= 0)
-                {
-                    distMap[countMatched].ind_1 = i;
-                    distMap[countMatched].ind_2 = bestIndex;
-                    distMap[countMatched].euclideanDist = bestDist;
-                    countMatched++;
-                    alreadyMatched[bestIndex] = true;
-                }
+                for (int j = 0; j < len_2; j++)
+                    if (!alreadyMatched[j])
+                        if (p_1[i].sign == p_2[j].sign)
+                        {
+                            double curDist = getEuclideanDistance(p_1[i].descriptor, p_2[j].descriptor,
+                                FeaturePoint.DESC_SIZE);
+
+                            if (bestDist_2 < 0)
+                                bestDist_2 = curDist;
+                            else
+                                if (curDist > bestDist && curDist < bestDist_2)
+                                    bestDist_2 = curDist;
+                        }
+                /*
+                 * FALSE DETECTION PRUNING
+                 * If ratio (1st / 2nd) > 0.8 - this is the false detection
+                 */
+                if (bestDist_2 > 0 && bestDist >= 0)
+                    if (bestDist / bestDist_2 < ratioThreshold)
+                    {
+                        distMap[countMatched].ind_1 = i;
+                        distMap[countMatched].ind_2 = bestIndex;
+                        distMap[countMatched].euclideanDist = bestDist;
+                        countMatched++;
+                        alreadyMatched[bestIndex] = true;
+                    }
             }
 
             normalizeDist(distMap, minLength);
