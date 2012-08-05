@@ -133,7 +133,6 @@ namespace SimpleSURF
         private void normalizeDist(MatchInfo[] ar, int length)
         {
             double max = 0;
-            //double min = 0;
 
             //Find max value
             for (int i = 0; i < length; i++)
@@ -146,29 +145,45 @@ namespace SimpleSURF
                     }
                     else
                     {
-                        //if (ar[i].euclideanDist < min)
-                        //    min = ar[i].euclideanDist;
                         if (ar[i].euclideanDist > max)
                             max = ar[i].euclideanDist;
                     }
                 }
             }
 
-            //double div = max;
-
             for (int i = 0; i < length; i++)
-                if (max != 0)
+                if (max != 0 && ar[i].euclideanDist >= 0)
                     ar[i].euclideanDist = ar[i].euclideanDist / max;
-                else
-                    ar[i].euclideanDist = 0;
         }
 
-        public FeaturePoint[,] matchPoints(FeaturePoint[] p_1, int len_1,
-            FeaturePoint[] p_2, int len_2, double threshold)
+        public FeaturePoint[,] matchPoints(FeaturePoint[] points_1, int len_1,
+            FeaturePoint[] points_2, int len_2, double threshold)
         {
             const double ratioThreshold = 0.8;
 
             int minLength = (len_1 < len_2) ? len_1 : len_2;
+
+            bool isSwap = false;
+            FeaturePoint[] p_1 = null;
+            FeaturePoint[] p_2 = null;
+
+            if (minLength == len_2)
+            {
+                p_1 = points_2;
+                p_2 = points_1;
+
+                int tmp = 0;
+                tmp = len_1;
+                len_1 = len_2;
+                len_2 = tmp;
+                isSwap = true;
+            }
+            else
+            {
+                p_1 = points_1;
+                p_2 = points_2;
+                isSwap = false;
+            }
 
             //Matched points
             FeaturePoint[,] result = new FeaturePoint[minLength, 2];
@@ -216,9 +231,8 @@ namespace SimpleSURF
                                     bestIndex = j;
                                 }
                         }
-                //-----------------------------------------------------------------------
                 /*
-                 * Findes the 2nd nearest point. 
+                 * Findes the 2nd nearest point
                  */
                 double bestDist_2 = -1;
 
@@ -252,15 +266,23 @@ namespace SimpleSURF
 
             normalizeDist(distMap, minLength);
 
+            //Pruning based on the custom threshold (0..1)
             int c = 0;
             for (int i = 0; i < minLength; i++)
                 if (distMap[i].euclideanDist >= 0
                     && distMap[i].euclideanDist <= threshold)
-                {
-                    result[c, 0] = p_1[distMap[i].ind_1];
-                    result[c, 1] = p_2[distMap[i].ind_2];
-                    c++;
-                }
+                    if (!isSwap)
+                    {
+                        result[c, 0] = p_1[distMap[i].ind_1];
+                        result[c, 1] = p_2[distMap[i].ind_2];
+                        c++;
+                    }
+                    else
+                    {
+                        result[c, 1] = p_1[distMap[i].ind_1];
+                        result[c, 0] = p_2[distMap[i].ind_2];
+                        c++;
+                    }
 
             return result;
         }
